@@ -5,12 +5,16 @@ def format
   format = ENV['FORMAT'] || ENV['format']
 end
 
+def obtained_file_path
+  obtained_file_path = ENV['FILEPATH'] || ENV['filepath']
+end
+
 namespace :backup do
   desc "Backup the current database. Timestamped file is created as :rails_root/../db-name-timestamp.sql"
   task :db => :environment do 
     config    = ActiveRecord::Base.configurations[Rails.env || 'development']
     filename  = "#{config['database'].gsub(/_/, '-')}-#{Time.now.strftime(format || '%Y-%m-%d-%H-%M-%S')}.sql"
-    backupdir = File.expand_path(File.join(Rails.root, '..'))
+    backupdir = obtained_file_path || File.expand_path(File.join(Rails.root, '..'))
     filepath  = File.join(backupdir, filename)
     mysqldump = `which mysqldump`.strip
     options   =  "-e -u #{config['username']}"

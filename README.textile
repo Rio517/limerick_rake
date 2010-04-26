@@ -27,7 +27,7 @@ h2. Git
 
 h2. Backup
 
-* rake backup:db - Backup the current database. Timestamped file is created as :rails_root/../db-name-timestamp.sql, accepts format=[custom datetime format string], filepath=[target filepath]
+* rake backup:db - Backup the current database. Timestamped file is created as :rails_root/../db-name-timestamp.sql, accepts format=[custom datetime format string], filepath=[target filepath], compression=[zip|7z|gz]
 * rake backup:assets - Backup all assets under public/system. File is created as :rails_root/../system.tgz
 
 h2. Haml & Sass

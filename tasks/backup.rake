@@ -9,11 +9,21 @@ def obtained_file_path
   obtained_file_path = ENV['FILEPATH'] || ENV['filepath']
 end
 
+def compression
+  compression_ext = ENV['COMPRESSION'] || ENV['compression'] || ''
+  compression_options = {
+    'gz' => {:command => " | gzip ", :file_ext => "sql.gz"},
+    '7z' => {:command => " | 7zip ", :file_ext => "sql.7z"},
+    'zip' => {:command => " | zip ", :file_ext => "sql.zip"}
+  }
+  compression_options[compression_ext.downcase] || {}
+end
+
 namespace :backup do
   desc "Backup the current database. Timestamped file is created as :rails_root/../db-name-timestamp.sql"
   task :db => :environment do 
     config    = ActiveRecord::Base.configurations[Rails.env || 'development']
-    filename  = "#{config['database'].gsub(/_/, '-')}-#{Time.now.strftime(format || '%Y-%m-%d-%H-%M-%S')}.sql"
+    filename  = "#{config['database'].gsub(/_/, '-')}-#{Time.now.strftime(format || '%Y-%m-%d-%H-%M-%S')}.#{compression[:file_ext] || 'sql'}"
     backupdir = obtained_file_path || File.expand_path(File.join(Rails.root, '..'))
     filepath  = File.join(backupdir, filename)
     mysqldump = `which mysqldump`.strip
@@ -25,7 +35,7 @@ namespace :backup do
     raise RuntimeError, "Cannot find mysqldump." if mysqldump.blank?
     
     FileUtils.mkdir_p backupdir
-    `#{mysqldump} #{options} #{config['database']} > #{filepath}`
+    `#{mysqldump} #{options} #{config['database']} #{compression[:command]} > #{filepath}`
     puts "#{config['database']} => #{filepath}"
   end
 

@@ -14,12 +14,14 @@ namespace :db do
     case config["adapter"]
       when "mysql", "postgresql"
         ActiveRecord::Base.connection.tables.each do |table|
-          ActiveRecord::Base.connection.execute("TRUNCATE #{table}")
+          ActiveRecord::Base.connection.execute("TRUNCATE #{table}") unless table == 'schema_migrations'
         end
       when "sqlite", "sqlite3"
         ActiveRecord::Base.connection.tables.each do |table|
-          ActiveRecord::Base.connection.execute("DELETE FROM #{table}")
-          ActiveRecord::Base.connection.execute("DELETE FROM sqlite_sequence where name='#{table}'")
+          unless table == 'schema_migrations'
+            ActiveRecord::Base.connection.execute("DELETE FROM #{table}")
+            ActiveRecord::Base.connection.execute("DELETE FROM sqlite_sequence where name='#{table}'")
+          end
         end
        ActiveRecord::Base.connection.execute("VACUUM")
      end

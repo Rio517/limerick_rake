@@ -3,13 +3,13 @@
 namespace :db do
   task :load_config => :rails_env do
     require 'active_record'
-    ActiveRecord::Base.configurations = Rails::Configuration.new.database_configuration
+    ActiveRecord::Base.configurations = Rails::VERSION::MAJOR == 2 ? Rails::Configuration.new.database_configuration : Rails::Application::config.database_configuration
   end
  
   desc "Create Sample Data for the application"
   task(:truncate => :load_config) do
    begin
-    config = ActiveRecord::Base.configurations[RAILS_ENV]
+    config = ActiveRecord::Base.configurations[Rails.env]
     ActiveRecord::Base.establish_connection
     case config["adapter"]
       when "mysql", "postgresql"
